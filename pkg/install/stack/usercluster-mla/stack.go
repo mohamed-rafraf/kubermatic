@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"slices"
 	"time"
 
 	semverlib "github.com/Masterminds/semver/v3"
@@ -137,6 +138,11 @@ func (s *UserClusterMLA) Deploy(ctx context.Context, opt stack.DeployOptions) er
 }
 
 func deployMLASecrets(ctx context.Context, logger *logrus.Entry, kubeClient ctrlruntimeclient.Client, helmClient helm.Client, opt stack.DeployOptions) error {
+	if slices.Contains(opt.SkipCharts, MLASecretsChartName) {
+		logger.Info("⭕ Skipping MLA Secrets deployment.")
+		return nil
+	}
+
 	logger.Info("📦 Deploying MLA Secrets…")
 	sublogger := log.Prefix(logger, "   ")
 
@@ -170,6 +176,11 @@ func deployMLASecrets(ctx context.Context, logger *logrus.Entry, kubeClient ctrl
 }
 
 func deployAlertmanagerProxy(ctx context.Context, logger *logrus.Entry, kubeClient ctrlruntimeclient.Client, helmClient helm.Client, opt stack.DeployOptions) error {
+	if slices.Contains(opt.SkipCharts, AlertmanagerProxyChartName) {
+		logger.Info("⭕ Skipping Alertmanager Proxy deployment.")
+		return nil
+	}
+
 	logger.Info("📦 Deploying Alertmanager Proxy…")
 	sublogger := log.Prefix(logger, "   ")
 
@@ -197,6 +208,11 @@ func deployAlertmanagerProxy(ctx context.Context, logger *logrus.Entry, kubeClie
 }
 
 func deployConsul(ctx context.Context, logger *logrus.Entry, kubeClient ctrlruntimeclient.Client, helmClient helm.Client, opt stack.DeployOptions) error {
+	if slices.Contains(opt.SkipCharts, ConsulChartName) {
+		logger.Info("⭕ Skipping Consul deployment.")
+		return nil
+	}
+
 	logger.Info("📦 Deploying Consul…")
 	sublogger := log.Prefix(logger, "   ")
 
@@ -234,6 +250,11 @@ func deployConsul(ctx context.Context, logger *logrus.Entry, kubeClient ctrlrunt
 }
 
 func deployCortex(ctx context.Context, logger *logrus.Entry, kubeClient ctrlruntimeclient.Client, helmClient helm.Client, opt stack.DeployOptions) error {
+	if slices.Contains(opt.SkipCharts, CortexChartName) {
+		logger.Info("⭕ Skipping Cortex deployment.")
+		return nil
+	}
+
 	logger.Info("📦 Deploying Cortex…")
 	sublogger := log.Prefix(logger, "   ")
 
@@ -282,6 +303,11 @@ func deployCortex(ctx context.Context, logger *logrus.Entry, kubeClient ctrlrunt
 }
 
 func deployGrafana(ctx context.Context, logger *logrus.Entry, kubeClient ctrlruntimeclient.Client, helmClient helm.Client, opt stack.DeployOptions) error {
+	if slices.Contains(opt.SkipCharts, GrafanaChartName) {
+		logger.Info("⭕ Skipping Grafana deployment.")
+		return nil
+	}
+
 	logger.Info("📦 Deploying Grafana…")
 	sublogger := log.Prefix(logger, "   ")
 
@@ -309,6 +335,11 @@ func deployGrafana(ctx context.Context, logger *logrus.Entry, kubeClient ctrlrun
 }
 
 func deployLoki(ctx context.Context, logger *logrus.Entry, kubeClient ctrlruntimeclient.Client, helmClient helm.Client, opt stack.DeployOptions) error {
+	if slices.Contains(opt.SkipCharts, LokiChartName) {
+		logger.Info("⭕ Skipping Loki deployment.")
+		return nil
+	}
+
 	logger.Info("📦 Deploying Loki…")
 	sublogger := log.Prefix(logger, "   ")
 
