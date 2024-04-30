@@ -216,7 +216,7 @@ var (
 	}
 
 	DefaultKubernetesVersioning = kubermaticv1.KubermaticVersioningConfiguration{
-		Default: semver.NewSemverOrDie("v1.28.9"),
+		Default: semver.NewSemverOrDie("v1.29.4"),
 		// NB: We keep all patch releases that we supported, even if there's
 		// an auto-upgrade rule in place. That's because removing a patch
 		// release from this slice can break reconciliation loop for clusters
@@ -242,6 +242,8 @@ var (
 			newSemver("v1.29.1"),
 			newSemver("v1.29.2"),
 			newSemver("v1.29.4"),
+			// Kubernetes 1.30
+			newSemver("v1.30.0"),
 		},
 		Updates: []kubermaticv1.Update{
 			// ======= 1.27 =======
@@ -271,6 +273,17 @@ var (
 				// Allow to change to any patch version
 				From: "1.29.*",
 				To:   "1.29.*",
+			},
+			{
+				// Allow to next minor release
+				From: "1.29.*",
+				To:   "1.30.*",
+			},
+			// ======= 1.30 =======
+			{
+				// Allow to change to any patch version
+				From: "1.30.*",
+				To:   "1.30.*",
 			},
 		},
 		ProviderIncompatibilities: []kubermaticv1.Incompatibility{
@@ -543,7 +556,7 @@ func DefaultConfiguration(config *kubermaticv1.KubermaticConfiguration, logger *
 		return configCopy, err
 	}
 
-	if err := defaultDockerRepo(&configCopy.Spec.UserCluster.SystemApplications.HelmRepository, DefaultSystemApplicationsHelmRepository, "userCluster.systemApplications.helmRepository", logger); err != nil {
+	if err := defaultHelmRepo(&configCopy.Spec.UserCluster.SystemApplications.HelmRepository, DefaultSystemApplicationsHelmRepository, "userCluster.systemApplications.helmRepository", logger); err != nil {
 		return configCopy, err
 	}
 
@@ -592,6 +605,15 @@ func DefaultConfiguration(config *kubermaticv1.KubermaticConfiguration, logger *
 	}
 
 	return configCopy, nil
+}
+
+func defaultHelmRepo(repo *string, defaultRepo string, key string, logger *zap.SugaredLogger) error {
+	if *repo != "" && strings.HasPrefix(*repo, "oci://") {
+		normalizedRepo := strings.TrimPrefix(*repo, "oci://")
+		return defaultDockerRepo(&normalizedRepo, defaultRepo, key, logger)
+	}
+
+	return defaultDockerRepo(repo, defaultRepo, key, logger)
 }
 
 func defaultDockerRepo(repo *string, defaultRepo string, key string, logger *zap.SugaredLogger) error {
