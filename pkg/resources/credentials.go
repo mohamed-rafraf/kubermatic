@@ -544,17 +544,18 @@ func GetAzureCredentials(data CredentialsData) (AzureCredentials, error) {
 }
 
 func GetBaremetalCredentials(data CredentialsData) (BaremetalCredentials, error) {
-	spec := data.Cluster().Spec.Cloud.Baremetal
-	baremetalCredentials := BaremetalCredentials{}
-	var err error
+	return BaremetalCredentials{}, nil
+	// spec := data.Cluster().Spec.Cloud.Baremetal
+	// baremetalCredentials := BaremetalCredentials{}
+	// var err error
 
-	if spec.Tinkerbell != nil && spec.Tinkerbell.Kubeconfig != "" {
-		baremetalCredentials.Tinkerbell.Kubeconfig = spec.Tinkerbell.Kubeconfig
-	} else if baremetalCredentials.Tinkerbell.Kubeconfig, err = data.GetGlobalSecretKeySelectorValue(spec.CredentialsReference, TinkerbellKubeconfig); err != nil {
-		return BaremetalCredentials{}, err
-	}
+	// if spec.Tinkerbell != nil && spec.Tinkerbell.Kubeconfig != "" {
+	// 	baremetalCredentials.Tinkerbell.Kubeconfig = spec.Tinkerbell.Kubeconfig
+	// } else if baremetalCredentials.Tinkerbell.Kubeconfig, err = data.GetGlobalSecretKeySelectorValue(spec.CredentialsReference, TinkerbellKubeconfig); err != nil {
+	// 	return BaremetalCredentials{}, err
+	// }
 
-	return baremetalCredentials, nil
+	// return baremetalCredentials, nil
 }
 
 func GetDigitaloceanCredentials(data CredentialsData) (DigitaloceanCredentials, error) {
