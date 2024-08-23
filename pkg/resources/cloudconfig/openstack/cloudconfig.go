@@ -24,7 +24,7 @@ import (
 
 	"github.com/Masterminds/sprig/v3"
 
-	"github.com/kubermatic/machine-controller/pkg/ini"
+	"k8c.io/kubermatic/v2/pkg/resources/cloudconfig/ini"
 )
 
 // use-octavia is enabled by default in CCM since v1.17.0, and disabled by

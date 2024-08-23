@@ -23,17 +23,17 @@ import (
 	"fmt"
 	"net/url"
 
-	aws "github.com/kubermatic/machine-controller/pkg/cloudprovider/provider/aws/types"
-	azure "github.com/kubermatic/machine-controller/pkg/cloudprovider/provider/azure/types"
-	gce "github.com/kubermatic/machine-controller/pkg/cloudprovider/provider/gce/types"
-	kubevirt "github.com/kubermatic/machine-controller/pkg/cloudprovider/provider/kubevirt/types"
-	vsphere "github.com/kubermatic/machine-controller/pkg/cloudprovider/provider/vsphere/types"
 	kubermaticv1 "k8c.io/kubermatic/v2/pkg/apis/kubermatic/v1"
 	"k8c.io/kubermatic/v2/pkg/provider/cloud/gcp"
 	kkpkubevirt "k8c.io/kubermatic/v2/pkg/provider/cloud/kubevirt"
 	openstackprovider "k8c.io/kubermatic/v2/pkg/provider/cloud/openstack"
 	"k8c.io/kubermatic/v2/pkg/resources"
+	aws "k8c.io/kubermatic/v2/pkg/resources/cloudconfig/aws"
+	azure "k8c.io/kubermatic/v2/pkg/resources/cloudconfig/azure"
+	gce "k8c.io/kubermatic/v2/pkg/resources/cloudconfig/gcp"
+	kubevirt "k8c.io/kubermatic/v2/pkg/resources/cloudconfig/kubevirt"
 	"k8c.io/kubermatic/v2/pkg/resources/cloudconfig/openstack"
+	vsphere "k8c.io/kubermatic/v2/pkg/resources/cloudconfig/vsphere"
 )
 
 const defaultOpenStackLBMethod = "ROUND_ROBIN"

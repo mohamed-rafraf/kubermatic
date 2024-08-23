@@ -17,6 +17,8 @@ limitations under the License.
 package metrics
 
 import (
+	"context"
+
 	"github.com/prometheus/client_golang/prometheus"
 
 	"k8s.io/apimachinery/pkg/util/runtime"
@@ -38,9 +40,12 @@ func RegisterRuntimErrorMetricCounter(subsystem string, registry prometheus.Regi
 
 	registry.MustRegister(errors)
 
+	// Define the error handler function matching the ErrorHandler signature
+	errorHandler := func(ctx context.Context, err error, msg string, keysAndValues ...interface{}) {
+		errors.Inc()
+	}
+
 	// register error handler that will increment a counter that will be scraped by prometheus,
 	// that accounts for all errors reported via a call to runtime.HandleError
-	runtime.ErrorHandlers = append(runtime.ErrorHandlers, func(err error) {
-		errors.Inc()
-	})
+	runtime.ErrorHandlers = append(runtime.ErrorHandlers, errorHandler)
 }

@@ -23,8 +23,8 @@ import (
 
 	"github.com/Masterminds/sprig/v3"
 
-	"github.com/kubermatic/machine-controller/pkg/cloudprovider/provider/vsphere/types"
-	"github.com/kubermatic/machine-controller/pkg/ini"
+	"k8c.io/kubermatic/v2/pkg/resources/cloudconfig/ini"
+	types "k8c.io/kubermatic/v2/pkg/resources/cloudconfig/vsphere"
 )
 
 const (
