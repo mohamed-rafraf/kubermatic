@@ -360,6 +360,7 @@ func MirrorImagesFunc(logger *logrus.Logger, versions kubermaticversion.Versions
 
 			var verb string
 			var count, fullCount int
+			var failedImages []string
 			if options.Archive {
 				logger.WithField("archive-path", options.ArchivePath).Info("🚀 Archiving images…")
 				count, fullCount, err = images.ArchiveImages(ctx, logger, options.ArchivePath, options.DryRun, sets.List(imageSet))
@@ -372,8 +373,11 @@ func MirrorImagesFunc(logger *logrus.Logger, versions kubermaticversion.Versions
 				}
 			} else {
 				logger.WithField("registry", options.Registry).Info("🚀 Mirroring images…")
-				count, fullCount, err = images.CopyImages(ctx, logger, options.DryRun, sets.List(imageSet), options.Registry, userAgent)
+				count, fullCount, failedImages, err = images.CopyImages(ctx, logger, options.DryRun, sets.List(imageSet), options.Registry, userAgent)
 				if err != nil {
+					for _, img := range failedImages {
+						logger.Errorf("Failed image: %s", img)
+					}
 					return fmt.Errorf("failed to mirror all images (successfully copied %d/%d): %w", count, fullCount, err)
 				}
 
