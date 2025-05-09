@@ -22,7 +22,6 @@ import (
 	"testing"
 )
 
-// Test function
 func TestOwnersFromTags(t *testing.T) {
 	testCases := []struct {
 		name     string
@@ -82,7 +81,6 @@ func TestOwnersFromTags(t *testing.T) {
 	}
 }
 
-// Test function
 func TestAddTagOwnership(t *testing.T) {
 	testCases := []struct {
 		name      string

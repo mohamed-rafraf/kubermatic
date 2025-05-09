@@ -25,7 +25,7 @@ import (
 )
 
 // TagPrefixOwnedByCluster is the prefix used for tags that track cluster ownership.
-// Example: "owned-by-cluster:cluster1,cluster2"
+// Example: "owned-by-cluster:cluster1,cluster2".
 const TagPrefixOwnedByCluster = "owned-by-cluster:"
 
 // TagManagedByKubermatic is the tag used to identify resources managed by Kubermatic KKP.

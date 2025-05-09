@@ -693,21 +693,8 @@ func (os *Provider) CleanUpCloudProvider(ctx context.Context, cluster *kubermati
 
 	// Handle the router deletion.
 	if kubernetes.HasFinalizer(cluster, RouterCleanupFinalizer) || kubernetes.HasFinalizer(cluster, OldNetworkCleanupFinalizer) {
-		routerID := cluster.Spec.Cloud.Openstack.RouterID
-		err = removerRouterOwnership(netClient, routerID, cluster.Name)
-		if err != nil {
-			return nil, fmt.Errorf("failed to remove cluster %s ownership from router %s: %w", cluster.Name, routerID, err)
-		}
-		owners, err := getRouterOwners(netClient, routerID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get router owners (routerId: %s) : %w", routerID, err)
-		}
-		if len(owners) == 0 {
-			if err = deleteRouter(netClient, routerID); err != nil {
-				if !isNotFoundErr(err) {
-					return nil, fmt.Errorf("failed to delete router '%s': %w", routerID, err)
-				}
-			}
+		if err = handleRouterDeletion(netClient, cluster); err != nil {
+			return nil, err
 		}
 	}
 
@@ -731,6 +718,28 @@ func (os *Provider) CleanUpCloudProvider(ctx context.Context, cluster *kubermati
 	}
 
 	return cluster, nil
+}
+
+// Handle the router deletion.
+func handleRouterDeletion(netClient *gophercloud.ServiceClient, cluster *kubermaticv1.Cluster) error {
+	var err error
+	routerID := cluster.Spec.Cloud.Openstack.RouterID
+	err = removerRouterOwnership(netClient, routerID, cluster.Name)
+	if err != nil {
+		return fmt.Errorf("failed to remove cluster %s ownership from router %s: %w", cluster.Name, routerID, err)
+	}
+	owners, err := getRouterOwners(netClient, routerID)
+	if err != nil {
+		return fmt.Errorf("failed to get router owners (routerId: %s) : %w", routerID, err)
+	}
+	if len(owners) == 0 {
+		if err = deleteRouter(netClient, routerID); err != nil {
+			if !isNotFoundErr(err) {
+				return fmt.Errorf("failed to delete router '%s': %w", routerID, err)
+			}
+		}
+	}
+	return nil
 }
 
 func getAuthClient(authURL string, credentials *resources.OpenstackCredentials, caBundle *x509.CertPool) (*gophercloud.ProviderClient, error) {

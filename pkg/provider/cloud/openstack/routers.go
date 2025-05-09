@@ -67,7 +67,7 @@ func createRouter(netClient *gophercloud.ServiceClient, clusterName, extNetworkN
 		deleteErr := retryOnError(3, func() error { return deleteRouter(netClient, router.ID) })
 		if deleteErr != nil {
 			return nil, fmt.Errorf(
-				"CRITICAL FAILURE: Router %s created but tagging failed, and deletion also failed: %v (original error: %w)",
+				"CRITICAL FAILURE: Router %s created but tagging failed, and deletion also failed: %w (original error: %w)",
 				router.ID, deleteErr, err,
 			)
 		}
