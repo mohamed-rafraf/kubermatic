@@ -64,7 +64,7 @@ func createRouter(netClient *gophercloud.ServiceClient, clusterName, extNetworkN
 		// FALLBACK: Delete the router if tagging fails
 		// - Prevents orphaned routers without required metadata
 		// - Retry deletion 3 times with exponential backoff (transient failures possible)
-		deleteErr := RetryOnError(3, func() error { return deleteRouter(netClient, router.ID) })
+		deleteErr := retryOnError(3, func() error { return deleteRouter(netClient, router.ID) })
 		if deleteErr != nil {
 			return nil, fmt.Errorf(
 				"CRITICAL FAILURE: Router %s created but tagging failed, and deletion also failed: %v (original error: %w)",
@@ -156,7 +156,7 @@ func ignoreRouterAlreadyHasPortInSubnetError(err error, subnetID string) error {
 }
 
 func addTags(netClient *gophercloud.ServiceClient, clusterName, routerID string) error {
-	return RetryOnError(3, func() error {
+	return retryOnError(3, func() error {
 		tagOpts := tags.ReplaceAllOpts{
 			Tags: []string{
 				TagManagedByKubermatic,
