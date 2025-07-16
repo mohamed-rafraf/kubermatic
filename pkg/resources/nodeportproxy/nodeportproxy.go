@@ -444,7 +444,7 @@ func FrontLoadBalancerServiceReconciler(data *resources.TemplateData) reconcilin
 			}
 
 			// Check if allowed IP ranges are configured and set the LoadBalancer source ranges
-			if data.Cluster().Spec.APIServerAllowedIPRanges != nil {
+			if data.Cluster().Spec.APIServerAllowedIPRanges != nil && len(data.Cluster().Spec.APIServerAllowedIPRanges.CIDRBlocks) > 0 {
 				sourceIPList.Insert(data.Cluster().Spec.APIServerAllowedIPRanges.CIDRBlocks...)
 				if seed := data.Seed(); seed != nil {
 					if len(seed.Spec.DefaultAPIServerAllowedIPRanges) > 0 {
