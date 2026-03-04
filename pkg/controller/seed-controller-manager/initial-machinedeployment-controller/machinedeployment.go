@@ -60,18 +60,28 @@ func CompleteMachineDeployment(md *clusterv1alpha1.MachineDeployment, cluster *k
 
 	md.Finalizers = []string{metav1.FinalizerDeleteDependents}
 
-	// inject a known, good set of labels+matchLabels to ensure the MD makes sense
-	md.Spec.Selector.MatchLabels = map[string]string{
-		"machine": fmt.Sprintf("md-%s-%s", cluster.Name, rand.String(10)),
+	// Inject the required "machine" label into the selector, preserving any
+	// user-provided labels that were set in the annotation.
+	machineLabel := fmt.Sprintf("md-%s-%s", cluster.Name, rand.String(10))
+	if md.Spec.Selector.MatchLabels == nil {
+		md.Spec.Selector.MatchLabels = make(map[string]string)
 	}
+	md.Spec.Selector.MatchLabels["machine"] = machineLabel
 
-	md.Spec.Template.Labels = md.Spec.Selector.MatchLabels
+	// Preserve any existing template labels from the annotation and ensure all
+	// selector labels are present (selector must be a subset of template labels).
+	if md.Spec.Template.Labels == nil {
+		md.Spec.Template.Labels = make(map[string]string)
+	}
+	for k, v := range md.Spec.Selector.MatchLabels {
+		md.Spec.Template.Labels[k] = v
+	}
 
 	// Merge MatchLabels with Template Spec Labels.
 	if md.Spec.Template.Spec.Labels == nil {
 		md.Spec.Template.Spec.Labels = make(map[string]string)
 	}
-	md.Spec.Template.Spec.Labels["machine"] = md.Spec.Template.Labels["machine"]
+	md.Spec.Template.Spec.Labels["machine"] = machineLabel
 
 	// Do not confuse the convenience labels with the labels inside the
 	// providerSpec, which ultimately get applied on the cloud provider resources.

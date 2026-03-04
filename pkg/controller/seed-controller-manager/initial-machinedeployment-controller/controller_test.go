@@ -134,6 +134,19 @@ func TestReconcile(t *testing.T) {
 		t.Fatalf("Cannot marshal initial machine deployment: %v", err)
 	}
 
+	// MD with user-defined labels to test label propagation
+	customLabels := map[string]string{
+		"env":  "staging",
+		"team": "infra",
+	}
+	dummyMDWithLabels := dummyMD.DeepCopy()
+	dummyMDWithLabels.Spec.Template.Labels = customLabels
+
+	mdAnnotationWithLabels, err := json.Marshal(dummyMDWithLabels)
+	if err != nil {
+		t.Fatalf("Cannot marshal initial machine deployment with labels: %v", err)
+	}
+
 	testCases := []struct {
 		name      string
 		mcHealthy bool
@@ -200,6 +213,49 @@ func TestReconcile(t *testing.T) {
 
 				if len(machineDeployments.Items) == 0 {
 					return errors.New("did not find a MachineDeployment in the user cluster after the reconciler finished")
+				}
+
+				return nil
+			},
+		},
+
+		{
+			name:      "user-defined labels in annotation are preserved on the created MachineDeployment",
+			mcHealthy: true,
+			cluster:   genCluster(string(mdAnnotationWithLabels)),
+			validate: func(cluster *kubermaticv1.Cluster, userClusterClient ctrlruntimeclient.Client, reconcileErr error) error {
+				if reconcileErr != nil {
+					return fmt.Errorf("reconciling should not have caused an error, but did: %w", reconcileErr)
+				}
+
+				machineDeployments := clusterv1alpha1.MachineDeploymentList{}
+				if err := userClusterClient.List(context.Background(), &machineDeployments); err != nil {
+					return fmt.Errorf("failed to list MachineDeployments in user cluster: %w", err)
+				}
+
+				if len(machineDeployments.Items) == 0 {
+					return errors.New("did not find a MachineDeployment in the user cluster after the reconciler finished")
+				}
+
+				md := machineDeployments.Items[0]
+
+				// Verify user-defined labels from the annotation are preserved in Template.Labels
+				for k, v := range customLabels {
+					if got, ok := md.Spec.Template.Labels[k]; !ok || got != v {
+						return fmt.Errorf("expected label %q=%q to be present in Spec.Template.Labels, got %q", k, v, got)
+					}
+				}
+
+				// Verify the required "machine" selector label is also present
+				if _, ok := md.Spec.Template.Labels["machine"]; !ok {
+					return fmt.Errorf("expected injected 'machine' label to be present in Spec.Template.Labels")
+				}
+
+				// Verify selector and template labels are consistent (selector must be subset of template labels)
+				for k, v := range md.Spec.Selector.MatchLabels {
+					if got, ok := md.Spec.Template.Labels[k]; !ok || got != v {
+						return fmt.Errorf("selector label %q=%q not found in template labels (got %q)", k, v, got)
+					}
 				}
 
 				return nil
